@@ -6,7 +6,8 @@ import { CalendarIcon, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
-import { Toaster, toast } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/toaster";
+import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
