@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
@@ -15,11 +14,7 @@ import MedicinaliList, { Medicinale, StatoMedicinale } from "@/components/Medici
 import MedicinaleInput from "@/components/MedicinaleInput";
 
 // Default list, now modifiable.
-const defaultMedicinaliList = [
-  { id: 1, nome: "Aspirina" },
-  { id: 2, nome: "Metformina" },
-  { id: 3, nome: "Ramipril" },
-];
+const defaultMedicinaliList: { id: number; nome: string }[] = [];
 
 interface MedicinaleData {
   [id: number]: StatoMedicinale;
@@ -265,4 +260,3 @@ const RegistroMedicinaliForm = () => {
 };
 
 export default RegistroMedicinaliForm;
-
