@@ -2,6 +2,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { format } from "date-fns";
+import { it } from "date-fns/locale";
 import { CalendarIcon, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,8 +33,7 @@ const RegistroMedicinaliForm = () => {
   const handleToggle = (id: number) => {
     setMedicinaliStato((prev) => ({
       ...prev,
-      [id]:
-        prev[id] === "preso" ? "non preso" : "preso",
+      [id]: prev[id] === "preso" ? "non preso" : "preso",
     }));
   };
 
@@ -42,7 +42,7 @@ const RegistroMedicinaliForm = () => {
       title: "Salvato!",
       description: (
         <span>
-          Dati salvati per il {date ? format(date, "dd/MM/yyyy") : ""}:<br />
+          Dati salvati per il {date ? format(date, "dd/MM/yyyy", { locale: it }) : ""}:<br />
           {medicinaliList.map((m) => (
             <div key={m.id}>
               {m.nome}: <b>{medicinaliStato[m.id] === "preso" ? "Preso" : "Non preso"}</b>
@@ -72,7 +72,7 @@ const RegistroMedicinaliForm = () => {
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Scegli una data</span>}
+            {date ? format(date, "PPP", { locale: it }) : <span>Scegli una data</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -82,6 +82,7 @@ const RegistroMedicinaliForm = () => {
             onSelect={setDate}
             className={cn("p-3 pointer-events-auto")}
             initialFocus
+            locale={it}
           />
         </PopoverContent>
       </Popover>
