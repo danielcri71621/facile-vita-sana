@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { CalendarIcon, Check, X, Plus } from "lucide-react";
@@ -25,6 +25,19 @@ interface MedicinaleData {
   [id: number]: StatoMedicinale;
 }
 
+interface RegistroData {
+  medicinaliList: { id: number; nome: string }[];
+  medicinaliStato: MedicinaleData;
+  pressione: string;
+  glicemia: string;
+}
+
+// Helper: chiave locale per ogni data
+const getKey = (date: Date | undefined) => {
+  if (!date) return "registroMedicinali:unknown";
+  return `registroMedicinali:${format(date, "yyyy-MM-dd")}`;
+};
+
 const RegistroMedicinaliForm = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [medicinaliList, setMedicinaliList] = useState(defaultMedicinaliList);
@@ -41,6 +54,45 @@ const RegistroMedicinaliForm = () => {
         : 0) + 1
     );
   }, [medicinaliList]);
+
+  // Quando la data cambia, carica da localStorage
+  useEffect(() => {
+    if (!date) return;
+    const key = getKey(date);
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      try {
+        const data: RegistroData = JSON.parse(raw);
+        setMedicinaliList(data.medicinaliList || defaultMedicinaliList);
+        setMedicinaliStato(data.medicinaliStato || {});
+        setPressione(data.pressione || "");
+        setGlicemia(data.glicemia || "");
+      } catch {
+        setMedicinaliList(defaultMedicinaliList);
+        setMedicinaliStato({});
+        setPressione("");
+        setGlicemia("");
+      }
+    } else {
+      setMedicinaliList(defaultMedicinaliList);
+      setMedicinaliStato({});
+      setPressione("");
+      setGlicemia("");
+    }
+  }, [date]);
+
+  // Quando i dati cambiano, salva in localStorage per la data attuale
+  useEffect(() => {
+    if (!date) return;
+    const key = getKey(date);
+    const data: RegistroData = {
+      medicinaliList,
+      medicinaliStato,
+      pressione,
+      glicemia,
+    };
+    localStorage.setItem(key, JSON.stringify(data));
+  }, [date, medicinaliList, medicinaliStato, pressione, glicemia]);
 
   const handleToggle = (id: number) => {
     setMedicinaliStato((prev) => ({
