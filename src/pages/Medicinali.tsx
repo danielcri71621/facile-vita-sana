@@ -12,10 +12,22 @@ const Medicinali = () => {
       <h1 className="text-2xl font-bold mb-4">Tracciamento Salute</h1>
       <Tabs defaultValue="quotidiana" className="w-full">
         <TabsList className="w-full mb-6">
-          <TabsTrigger value="quotidiana" className="w-1/4">Quotidiana</TabsTrigger>
-          <TabsTrigger value="registro" className="w-1/4">Registro</TabsTrigger>
-          <TabsTrigger value="grafico" className="w-1/4">Andamento</TabsTrigger>
-          <TabsTrigger value="analisi" className="w-1/4">Analisi</TabsTrigger>
+          <TabsTrigger value="quotidiana" className="w-1/4 text-xs sm:text-sm">
+            <span className="hidden sm:inline">Quotidiana</span>
+            <span className="sm:hidden">Oggi</span>
+          </TabsTrigger>
+          <TabsTrigger value="registro" className="w-1/4 text-xs sm:text-sm">
+            <span className="hidden sm:inline">Registro</span>
+            <span className="sm:hidden">Reg.</span>
+          </TabsTrigger>
+          <TabsTrigger value="grafico" className="w-1/4 text-xs sm:text-sm">
+            <span className="hidden sm:inline">Andamento</span>
+            <span className="sm:hidden">Graf.</span>
+          </TabsTrigger>
+          <TabsTrigger value="analisi" className="w-1/4 text-xs sm:text-sm">
+            <span className="hidden sm:inline">Analisi</span>
+            <span className="sm:hidden">Anal.</span>
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="quotidiana">
           <GestioneQuotidianaMedicinali />
