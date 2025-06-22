@@ -227,11 +227,8 @@ const AnalisiForm = () => {
         
         console.log("File salvato temporaneamente:", result.uri);
         
-        // Apri il file con l'app predefinita
-        await FileOpener.open({
-          filePath: result.uri,
-          contentType: 'application/pdf',
-        });
+        // Apri il file con l'app predefinita - corretto con due parametri
+        await FileOpener.open(result.uri, 'application/pdf');
         
         toast({
           title: "Documento aperto",
