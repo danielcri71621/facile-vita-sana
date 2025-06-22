@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
@@ -11,6 +10,9 @@ import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { FileOpener } from '@awesome-cordova-plugins/file-opener';
 
 interface AnalisiSangue {
   id: number;
@@ -194,28 +196,72 @@ const AnalisiForm = () => {
     event.target.value = "";
   };
 
-  const apriDocumento = (documento: DocumentoAnalisi) => {
+  const apriDocumento = async (documento: DocumentoAnalisi) => {
+    console.log("Tentativo di apertura documento:", documento.nome);
+    
     try {
-      // Crea un blob dal file base64 e aprilo in una nuova finestra
-      const byteCharacters = atob(documento.fileData.split(',')[1]);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      if (Capacitor.isNativePlatform()) {
+        // Siamo su mobile (Android/iOS)
+        console.log("Piattaforma nativa rilevata");
+        
+        // Converti base64 in blob
+        const response = await fetch(documento.fileData);
+        const blob = await response.blob();
+        const arrayBuffer = await blob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        
+        // Converti in base64 per il filesystem di Capacitor
+        let binary = '';
+        uint8Array.forEach((byte) => {
+          binary += String.fromCharCode(byte);
+        });
+        const base64Data = btoa(binary);
+        
+        // Salva il file temporaneamente
+        const fileName = `temp_${documento.id}.pdf`;
+        const result = await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Cache,
+        });
+        
+        console.log("File salvato temporaneamente:", result.uri);
+        
+        // Apri il file con l'app predefinita
+        await FileOpener.open({
+          filePath: result.uri,
+          contentType: 'application/pdf',
+        });
+        
+        toast({
+          title: "Documento aperto",
+          description: "Il PDF è stato aperto con l'app predefinita.",
+        });
+        
+      } else {
+        // Siamo nel browser web
+        console.log("Piattaforma web rilevata");
+        const byteCharacters = atob(documento.fileData.split(',')[1]);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        
+        toast({
+          title: "Documento aperto",
+          description: "Il PDF è stato aperto in una nuova finestra.",
+        });
       }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      
-      toast({
-        title: "Documento aperto",
-        description: "Il PDF è stato aperto in una nuova finestra.",
-      });
     } catch (error) {
+      console.error("Errore nell'apertura del documento:", error);
       toast({
         variant: "destructive",
         title: "Errore apertura",
-        description: "Impossibile aprire il documento.",
+        description: "Impossibile aprire il documento. Assicurati di avere un'app PDF installata.",
       });
     }
   };
