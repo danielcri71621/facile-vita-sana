@@ -18,8 +18,12 @@ i18n
   .init({
     resources,
     fallbackLng: 'it',
+    lng: localStorage.getItem('preferredLanguage') || 'it',
     interpolation: {
       escapeValue: false
+    },
+    react: {
+      useSuspense: true
     }
   });
 
