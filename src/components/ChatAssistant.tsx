@@ -21,6 +21,9 @@ const ChatAssistant = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chatWindowRef = useRef<HTMLDivElement>(null);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchOffset, setTouchOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -138,6 +141,39 @@ const ChatAssistant = () => {
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStart.x;
+    const deltaY = touch.clientY - touchStart.y;
+    
+    // Solo swipe verso destra o verso il basso
+    if (deltaX > 0 || deltaY > 0) {
+      setTouchOffset({ x: Math.max(0, deltaX), y: Math.max(0, deltaY) });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart) return;
+    
+    const threshold = 100; // Soglia minima per chiudere (in pixel)
+    
+    // Chiudi se lo swipe supera la soglia
+    if (touchOffset.x > threshold || touchOffset.y > threshold) {
+      setIsOpen(false);
+    }
+    
+    // Reset
+    setTouchStart(null);
+    setTouchOffset({ x: 0, y: 0 });
+  };
+
   return (
     <>
       {/* Floating button */}
@@ -154,7 +190,17 @@ const ChatAssistant = () => {
 
       {/* Chat window */}
       {isOpen && (
-        <div className="fixed inset-x-4 bottom-20 top-4 md:bottom-24 md:right-6 md:left-auto md:top-auto md:w-96 md:h-[500px] bg-card border-2 border-border rounded-2xl shadow-2xl z-[9998] flex flex-col">
+        <div 
+          ref={chatWindowRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            transform: `translate(${touchOffset.x}px, ${touchOffset.y}px)`,
+            transition: touchStart ? 'none' : 'transform 0.3s ease-out'
+          }}
+          className="fixed inset-x-4 bottom-20 top-4 md:bottom-24 md:right-6 md:left-auto md:top-auto md:w-96 md:h-[500px] bg-card border-2 border-border rounded-2xl shadow-2xl z-[9998] flex flex-col"
+        >
           {/* Header */}
           <div className="bg-gradient-to-r from-primary to-secondary p-4 rounded-t-2xl text-primary-foreground">
             <div className="flex justify-between items-center">
